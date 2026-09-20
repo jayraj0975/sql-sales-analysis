@@ -1,0 +1,25 @@
+genre,distinct_tracks_sold,units,revenue,share_pct
+Rock,745,835,826.65,35.5
+Latin,340,386,382.14,16.41
+Metal,231,264,261.36,11.22
+Alternative & Punk,203,244,241.56,10.37
+TV Shows,43,47,93.53,4.02
+Jazz,68,80,79.2,3.4
+Blues,53,61,60.39,2.59
+Drama,27,29,57.71,2.48
+Classical,36,41,40.59,1.74
+R&B/Soul,37,41,40.59,1.74
+Sci Fi & Fantasy,20,20,39.8,1.71
+Reggae,28,30,29.7,1.28
+Pop,26,28,27.72,1.19
+Soundtrack,19,20,19.8,0.85
+Comedy,8,9,17.91,0.77
+Hip Hop/Rap,15,17,16.83,0.72
+Bossa Nova,14,15,14.85,0.64
+Alternative,14,14,13.86,0.6
+World,13,13,12.87,0.55
+Science Fiction,5,6,11.94,0.51
+Electronica/Dance,11,12,11.88,0.51
+Heavy Metal,12,12,11.88,0.51
+Easy Listening,10,10,9.9,0.43
+Rock And Roll,6,6,5.94,0.26
