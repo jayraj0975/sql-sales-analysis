@@ -84,5 +84,5 @@ reports/
 
 ## Data and licence
 
-Data: the [Chinook database](https://github.com/lerocha/chinook-database) by Luis Rocha (MIT licence), downloaded at run time and not committed.
+Data: the [Chinook database](https://github.com/lerocha/chinook-database) by Luis Rocha (MIT licence), downloaded at run time and not committed; see [NOTICE](NOTICE).
 Code: MIT.
