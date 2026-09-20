@@ -12,6 +12,20 @@ what the data cannot tell you.
 
 ![Monthly revenue](reports/figures/monthly_revenue.png)
 
+## The data model
+
+The queries use these Chinook tables (a store selling individual music tracks):
+
+```
+Customer 1--* Invoice 1--* InvoiceLine *--1 Track *--1 Album *--1 Artist
+    *                                          *--1 Genre
+    |
+Employee (support rep)
+```
+
+`Invoice.Total` equals the sum of its `InvoiceLine` rows (`unit price x quantity`); a test confirms this holds for every invoice,
+so revenue can be computed from either table and gets the same answer.
+
 ## The queries
 
 | File | Question | Technique |

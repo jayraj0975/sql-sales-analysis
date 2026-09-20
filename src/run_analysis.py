@@ -96,6 +96,8 @@ def write_excel(results: dict[str, pd.DataFrame], path: Path) -> None:
         ch.add_data(Reference(ws, min_col=val_col, min_row=1, max_row=rows + 1), titles_from_data=True)
         ch.set_categories(Reference(ws, min_col=cat_col, min_row=2, max_row=rows + 1))
         ch.height, ch.width = 8, 16
+        ch.y_axis.scaling.min = 0          # bars must start at zero or small differences look large
+        ch.x_axis.delete = ch.y_axis.delete = False   # openpyxl hides axes in Excel unless told otherwise
         ws.add_chart(ch, anchor)
 
     y = results["yearly_revenue"]
@@ -108,10 +110,18 @@ def write_excel(results: dict[str, pd.DataFrame], path: Path) -> None:
     line.add_data(Reference(ws, min_col=3, min_row=1, max_row=len(m) + 1, max_col=4), titles_from_data=True)
     line.set_categories(Reference(ws, min_col=1, min_row=2, max_row=len(m) + 1))
     line.height, line.width = 8, 22
+    line.y_axis.scaling.min = 0
+    line.x_axis.delete = line.y_axis.delete = False
+    for series in line.series:
+        series.smooth = False              # draw the data as it is, not a fitted curve
     ws.add_chart(line, "F2")
 
     bar(sheets["revenue_by_country"], "Revenue by country (top 10)", 1, 4, min(10, len(results["revenue_by_country"])), "I2", "Revenue ($)")
     bar(sheets["revenue_by_genre"], "Revenue by genre (top 10)", 1, 4, min(10, len(results["revenue_by_genre"])), "I2", "Revenue ($)")
+    for ws in wb.worksheets:                   # print each sheet, and its chart, on one page width
+        ws.page_setup.orientation = "landscape"
+        ws.sheet_properties.pageSetUpPr.fitToPage = True
+        ws.page_setup.fitToWidth, ws.page_setup.fitToHeight = 1, 0
     wb.save(path)
 
 
