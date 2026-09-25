@@ -101,13 +101,34 @@ def test_every_customer_appears_exactly_once(conn, results):
 
 
 # ------------------------------------------------------------------ RFM
-def test_rfm_scores_are_valid_and_split_evenly(results):
+def test_rfm_scores_are_valid_and_the_bands_are_usable(results):
     r = results["rfm_segments"]
     for col in ("r_score", "f_score", "m_score"):
-        assert set(r[col]) == {1, 2, 3}
-        assert r[col].value_counts().max() - r[col].value_counts().min() <= 1   # NTILE gives near-equal groups
+        assert set(r[col]) <= {1, 2, 3}
     assert (r["total_score"] == r["r_score"] + r["f_score"] + r["m_score"]).all()
     assert set(r["segment"]) <= {"High value", "Middle", "Low value"}
+    # Recency and Monetary vary across customers, so all three bands are used and none is empty.
+    for col in ("r_score", "m_score"):
+        assert set(r[col]) == {1, 2, 3}
+
+
+def test_rfm_customers_with_equal_values_get_equal_scores(results):
+    """The reason for PERCENT_RANK over NTILE: identical behaviour must never be scored differently
+    just because of the customer id."""
+    r = results["rfm_segments"]
+    for measure, score in (("recency_days", "r_score"), ("frequency", "f_score"), ("monetary", "m_score")):
+        assert (r.groupby(measure)[score].nunique() == 1).all(), measure
+
+
+def test_rfm_frequency_is_nearly_constant_here_and_the_score_says_so(results):
+    """Almost every customer has the same invoice count, so Frequency must not invent a spread."""
+    r = results["rfm_segments"]
+    modal = r["frequency"].mode().iloc[0]
+    tied = r[r["frequency"] == modal]
+    assert len(tied) >= 0.9 * len(r)                 # the data property this test relies on
+    assert tied["f_score"].nunique() == 1            # ... and they all share one score
+    ordered = r.sort_values("frequency")["f_score"].tolist()
+    assert ordered == sorted(ordered)                # a higher count never scores lower
 
 
 def test_rfm_direction_is_correct(results):
@@ -165,3 +186,19 @@ def test_genre_query_keeps_revenue_from_tracks_with_no_genre(conn):
     assert "Unknown" in set(df["genre"])
     assert df["revenue"].sum() == pytest.approx(total, abs=0.01)
     scratch.close()
+
+
+# ------------------------------------------------------------- the pinned database
+def test_the_bundled_database_matches_its_pinned_checksum():
+    import download_data
+    assert download_data.verify(download_data.DEST) == download_data.EXPECTED_SHA256
+
+
+def test_a_changed_database_is_refused(tmp_path):
+    import pytest
+
+    import download_data
+    bad = tmp_path / "chinook.sqlite"
+    bad.write_bytes(b"SQLite format 3\x00 not the real file")
+    with pytest.raises(download_data.ChecksumMismatch):
+        download_data.verify(bad)

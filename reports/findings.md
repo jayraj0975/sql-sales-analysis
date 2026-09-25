@@ -34,7 +34,7 @@ of this project is the SQL and its checks, not a discovery about a real business
 6. **Most customers keep buying.** Of the 46 customers whose first purchase was in 2021,
    72% were active in 2022, 80% were active in 2023, 78% were active in 2024, 72% were active in 2025.
    ("Active" means at least one invoice that year, so a customer can skip a year and return.)
-7. **RFM segments:** 26 middle, 21 high value, 12 low value customers. 58 of 59 customers have exactly
+7. **RFM segments:** 29 middle, 26 low value, 4 high value customers. 58 of 59 customers have exactly
    7 invoices, so the Frequency score separates them almost not at all and the segments are really Recency plus Monetary;
    treat them as illustrative.
 

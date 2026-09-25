@@ -35,7 +35,7 @@ so revenue can be computed from either table and gets the same answer.
 | `sql/03_customer_pareto.sql` | Q3. How concentrated is revenue among customers (a Pareto / 80-20 view)? | `ROW_NUMBER()`, `SUM() OVER ()`, running total (Pareto curve) |
 | `sql/04_revenue_by_country.sql` | Q4. Which countries generate the revenue, and how much per customer? | Aggregation with a window share of total |
 | `sql/05_revenue_by_genre.sql` | Q5. Which genres earn the most? | Multi-table join, `LEFT JOIN` + `COALESCE` so nothing is silently dropped |
-| `sql/06_rfm_segments.sql` | Q6. RFM segmentation: Recency, Frequency, Monetary value. | `NTILE()` scoring, subqueries, date arithmetic (RFM segmentation) |
+| `sql/06_rfm_segments.sql` | Q6. RFM segmentation: Recency, Frequency, Monetary value. | `PERCENT_RANK()` bands (ties share a score), subqueries, date arithmetic (RFM segmentation) |
 | `sql/07_cohort_activity.sql` | Q7. Do customers keep buying? Cohorts by the year of their first purchase. | Multiple CTEs, cohort retention |
 | `sql/08_top_artists.sql` | Q8. Who are the top 15 artists by revenue? | Four-table join, `LIMIT` |
 | `sql/09_catalog_coverage.sql` | Q9. How much of the catalogue has never sold, by genre? | Anti-join (`LEFT JOIN ... IS NULL`), conditional aggregation |
@@ -46,18 +46,18 @@ Each query is a single read-only `SELECT`, and the database is opened read-only,
 ## How the SQL is checked
 
 The tests do not only check that queries run; they reconcile them against independent calculations
-(`tests/test_queries.py`, 17 tests):
+(`tests/test_queries.py`, 19 tests):
 
 - Every revenue view (by year, month, customer, country, genre, rep) sums to the same total as the raw `Invoice` table.
 - Yearly revenue, country revenue and the moving average are recomputed in **pandas** and compared.
-- The Pareto curve is a valid cumulative distribution; every customer appears exactly once; RFM scores are balanced and point the right way; cohorts partition the customers.
+- The Pareto curve is a valid cumulative distribution; every customer appears exactly once; RFM scores point the right way and customers with equal values always get equal scores; cohorts partition the customers.
 - The `LEFT JOIN` in the genre query is tested by planting a genre-less sold track in a scratch copy of the data, because the real data never exercises it. When I deliberately broke that join, the test failed, which is how I found the gap.
 
 ## Run it
 
 ```bash
 pip install -r requirements.txt        # or requirements-lock.txt for exact versions
-python src/download_data.py            # fetch the Chinook database (about 1 MB)
+python src/download_data.py            # verify data/chinook.sqlite against its pinned SHA-256 (fetches it only if missing)
 python src/run_analysis.py             # CSVs, workbook, figures, findings
 pip install pytest && pytest
 ```
@@ -84,5 +84,5 @@ reports/
 
 ## Data and licence
 
-Data: the [Chinook database](https://github.com/lerocha/chinook-database) by Luis Rocha (MIT licence), downloaded at run time and not committed; see [NOTICE](NOTICE).
+Data: the [Chinook database](https://github.com/lerocha/chinook-database) by Luis Rocha (MIT licence), included unmodified at `data/chinook.sqlite` (about 1 MB, checksum pinned) so the tests and CI need no network; its licence is reproduced in [NOTICE](NOTICE).
 Code: MIT.
