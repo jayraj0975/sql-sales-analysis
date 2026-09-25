@@ -46,7 +46,7 @@ Each query is a single read-only `SELECT`, and the database is opened read-only,
 ## How the SQL is checked
 
 The tests do not only check that queries run; they reconcile them against independent calculations
-(`tests/test_queries.py`, 19 tests):
+(`tests/test_queries.py`, 21 tests):
 
 - Every revenue view (by year, month, customer, country, genre, rep) sums to the same total as the raw `Invoice` table.
 - Yearly revenue, country revenue and the moving average are recomputed in **pandas** and compared.
